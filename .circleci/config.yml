@@ -1,0 +1,114 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.6.1
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+        
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            pytest
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+
+  lint:
+    docker:
+      - image: circleci/python:3.6.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v100-dependencies-{{ checksum "requirements.txt" }}
+          - v100-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: pylint
+          command: |
+            . venv/bin/activate
+            pylint --output-format=colorized hello
+
+  package:
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker:
+          reusable: true
+      - run:
+          name: Docker Build
+          command: docker build -t hello:${CIRCLE_SHA1} .
+
+  deploy:
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - setup_remote_docker:
+          reusable: true
+      - run:
+          name: Push to Heroku
+          command: |
+            docker login --username=_ --password=${HEROKU_AUTH_TOKEN} registry.heroku.com
+            docker tag hello:${CIRCLE_SHA1} registry.heroku.com/z00b/web
+            docker push registry.heroku.com/z00b/web
+
+workflows:
+  version: 2
+  lint_and_test:
+    jobs:
+      - build
+      - lint
+      - package:
+          requires:
+            - build
+      - hold:
+          type: approval
+          requires:
+            - package
+      - deploy:
+          requires:
+            - hold

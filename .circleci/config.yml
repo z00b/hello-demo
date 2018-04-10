@@ -2,8 +2,6 @@
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 # 
-# A very important staging comment
-# Another important staging comment
 #
 version: 2
 jobs:

@@ -102,13 +102,3 @@ workflows:
     jobs:
       - build
       - lint
-      - package:
-          requires:
-            - build
-      - hold:
-          type: approval
-          requires:
-            - package
-      - deploy:
-          requires:
-            - hold

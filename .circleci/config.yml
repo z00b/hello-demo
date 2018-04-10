@@ -78,6 +78,7 @@ jobs:
           name: Docker Build
           command: docker build -t hello:${CIRCLE_SHA1} .
 
+  # none of this does anything
   deploy:
     docker:
       - image: docker:17.05.0-ce-git

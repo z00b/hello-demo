@@ -1,4 +1,4 @@
-FROM circleci/python:3.6.1
+FROM cimg/python:3.9.2
 MAINTAINER rob@circleci.com
 
 COPY . /app

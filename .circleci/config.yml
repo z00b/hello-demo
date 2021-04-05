@@ -66,9 +66,9 @@ jobs:
             pylint --output-format=colorized hello
 
   deploy:
-    docker:
-      - image: docker:17.05.0-ce-git
+    executor: heroku/default
     steps:
+      - setup_remote_docker
       - checkout
       - heroku/install
       - heroku/check-authentication

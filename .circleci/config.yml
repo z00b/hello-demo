@@ -70,6 +70,8 @@ jobs:
       - image: heroku
     steps:
       - checkout
+      - heroku/install
+      - heroku/check-authentication
       - heroku/push-docker-image:
           process-types: web
       - heroku/release-docker-image:

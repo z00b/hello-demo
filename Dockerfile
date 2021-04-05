@@ -1,4 +1,4 @@
-FROM cimg/python:3.9.2
+FROM python/3.9.4-slim-buster
 MAINTAINER rob@circleci.com
 
 COPY . /app

@@ -1,4 +1,4 @@
 hello-demo
 ============
 
-Example flask app for deployment in a docker container
+Example flask app for deployment in a docker container on heroku.

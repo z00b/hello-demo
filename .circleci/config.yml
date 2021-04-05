@@ -66,8 +66,7 @@ jobs:
             pylint --output-format=colorized hello
 
   deploy:
-    docker:
-      - image: heroku
+    executor: heroku/default
     steps:
       - checkout
       - heroku/install

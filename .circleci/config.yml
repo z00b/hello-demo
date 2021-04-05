@@ -61,26 +61,17 @@ jobs:
             . venv/bin/activate
             pylint --output-format=colorized hello
 
-  package:
+  deploy:
     docker:
       - image: docker:17.05.0-ce-git
     steps:
       - checkout
       - setup_remote_docker:
-          reusable: true
+          docker_layer_caching: true
       - run:
-          name: Docker Build
-          command: docker build -t hello:${CIRCLE_SHA1} .
-
-  deploy:
-    docker:
-      - image: docker:17.05.0-ce-git
-    steps:
-      - setup_remote_docker:
-          reusable: true
-      - run:
-          name: Push to Heroku
+          name: Docker Build & Push
           command: |
+            docker build -t hello:${CIRCLE_SHA1} .
             docker login --username=_ --password=${HEROKU_AUTH_TOKEN} registry.heroku.com
             docker tag hello:${CIRCLE_SHA1} registry.heroku.com/z00b/web
             docker push registry.heroku.com/z00b/web
@@ -91,10 +82,7 @@ workflows:
     jobs:
       - lint
       - build
-      - package:
+      - deploy:
           requires:
             - lint
             - build
-      - deploy:
-          requires:
-            - package

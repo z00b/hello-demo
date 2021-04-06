@@ -65,18 +65,6 @@ jobs:
             . venv/bin/activate
             pylint --output-format=colorized hello
 
-  deploy:
-    executor: heroku/default
-    steps:
-      - setup_remote_docker
-      - checkout
-      - heroku/install
-      - heroku/check-authentication
-      - heroku/push-docker-image:
-          process-types: web
-      - heroku/release-docker-image:
-          process-types: web
-
 
 workflows:
   version: 2

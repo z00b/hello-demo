@@ -84,7 +84,9 @@ workflows:
     jobs:
       - lint
       - build
-      - deploy:
+      - heroku/push-docker-image:
           requires:
             - lint
             - build
+          pre-steps:
+            - setup_remote_docker
